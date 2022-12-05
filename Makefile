@@ -1,5 +1,5 @@
 CC ?= gcc
-CFLAGS += -Wall --pedantic -Werror -Wno-error=unused-but-set-variable
+CFLAGS += -Wall  -g --pedantic -Werror -Wno-error=unused-but-set-variable
 
 all:
 	$(CC) $(LDFLAGS) -o main $(CFLAGS) fonctions.c main.c -lm
