@@ -5,22 +5,6 @@
 
 #include "fonctions.h"
 
-linked_list *espace_libre = NULL;
-
-linked_list *new_element(int index)
-{
-    linked_list *element = (linked_list *)malloc((sizeof(linked_list)));
-    if (element == NULL)
-    {
-        printf("Probleme d'allocation memoire");
-        exit(1);
-    }
-    element->next = NULL;
-    element->previous = NULL;
-    element->data = index;
-    return element;
-}
-
 void init(void)
 {
     espace_libre = new_element(0);
@@ -29,22 +13,6 @@ void init(void)
     for (int i = 2; i < 128; i++)
     {
         tas[i] = 0;
-    }
-}
-
-void list_free()
-{
-    linked_list *tmp;
-    linked_list *first = espace_libre;
-    while (first)
-    {
-        tmp = first;
-        first = first->next;
-        free(tmp);
-    }
-    if (espace_libre != NULL)
-    {
-        espace_libre = NULL;
     }
 }
 
@@ -65,36 +33,6 @@ int index_libre(int taille)
 }
 
 // rajouter si la taille de tas_mallo(taille) est plus petite que l'espace libéré alors prendre la taille de l'espace libéré
-
-linked_list *add_index(linked_list *head, int data, int index)
-{
-    linked_list *added_index = head, *temp;
-    int compteur = 0;
-    while (compteur < index - 1)
-    {
-        added_index = added_index->next;
-        compteur++;
-    }
-
-    temp = new_element(data);
-    temp->next = added_index;
-    if (added_index == NULL)
-    {
-        temp->previous = NULL;
-        return temp;
-    }
-    temp->previous = added_index->previous;
-    if (added_index->previous)
-    {
-        added_index->previous->next = temp;
-    }
-    added_index->previous = temp;
-    if (index == 0)
-    {
-        return temp;
-    }
-    return head;
-}
 
 char *tas_malloc(unsigned int taille)
 {
