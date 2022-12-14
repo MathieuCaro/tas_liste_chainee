@@ -111,7 +111,15 @@ char *tas_malloc(unsigned int taille)
     if (taille_zone_libre == taille)
     {
         tas[index + 1] = 0;
-        espace_libre = espace_libre->next;
+        // regarder si l'élement suivant est null(si on est sur le dernier dans ce cas libérer la mémoire puis le mettre à null)
+        if (espace_libre->next == NULL)
+        {
+            free(espace_libre);
+            espace_libre = NULL;
+        }
+        else
+            espace_libre = espace_libre->next;
+
         if (espace_libre && espace_libre->previous)
         {
             free(espace_libre->previous);
