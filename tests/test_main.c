@@ -104,7 +104,7 @@ void test_empty_heap(void)
 
     CU_ASSERT(tas[0] == 127 && tas[127] == 0);
     tas_free(p1);
-    list_free();
+    list_free(p1);
 }
 
 void test_add_to_empty_heap(void)
@@ -119,7 +119,7 @@ void test_add_to_empty_heap(void)
     p2 = (char *)tas_malloc(3);
 
     CU_ASSERT(p2 == NULL);
-    list_free();
+    list_free(p2);
 }
 
 int init_suite(void) { return 0; }
