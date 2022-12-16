@@ -15,5 +15,6 @@ void init(void);
 char *tas_malloc(unsigned int taille);
 int tas_free(char *ptr);
 void afficher_tas();
+void clean();
 
 #endif

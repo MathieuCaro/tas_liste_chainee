@@ -7,7 +7,7 @@
 
 void init(void)
 {
-    espace_libre = new_element(SIZE_TAB, tas);
+    espace_libre = new_element(SIZE_TAB - 1, tas);
     tas[0] = SIZE_TAB - 1;
     tas[1] = FREE_BLOCK;
     for (int i = 2; i < 128; i++)
@@ -31,7 +31,7 @@ char *tas_malloc(unsigned int taille)
     char *temp = NULL;
     if (index->size == taille)
     {
-        *((char *)index->ptr) = 0;
+        *((char *)index->ptr + 1) = 0;
         temp = (char *)index->ptr + 1;
 
         espace_libre = list_remove(espace_libre, index);
@@ -41,9 +41,19 @@ char *tas_malloc(unsigned int taille)
         temp = (char *)index->ptr + 1;
         *((char *)index->ptr) = taille;
         *((char *)index->ptr + 1) = INIT_VAL;
-        espace_libre->size = (espace_libre->size - taille - 1);
+        int size;
+        if (index->next)
+        {
+            size = index->size - taille - 2;
+        }
+        else
+        {
+            size = index->size - taille - 1;
+        }
+        *((char *)index->ptr + taille + 1) = size;
+        index->size = size;
         *((char *)index->ptr + taille + 2) = -1;
-        espace_libre->ptr = (char *)index->ptr + taille + 1;
+        index->ptr = (char *)index->ptr + taille + 1;
     }
 
     return temp;
@@ -54,7 +64,11 @@ int tas_free(char *ptr)
 
     if (espace_libre == NULL || ptr - (char *)espace_libre->ptr <= 0)
     {
-        espace_libre = add_index(espace_libre, *(ptr - 1), 0, ptr);
+        espace_libre = add_index(espace_libre, *(ptr - 1), 0, ptr - 1);
+    }
+    else
+    {
+        add_before(espace_libre, ptr - 1, *(ptr - 1));
     }
     *(ptr) = -1;
     ptr++;
@@ -69,7 +83,15 @@ int tas_free(char *ptr)
 void afficher_tas()
 {
     int i, j;
-    printf("%ld\n", (char *)espace_libre->ptr - tas);
+    if (espace_libre == NULL)
+    {
+        printf("0\n");
+    }
+    else
+    {
+        printf("%ld\n", (char *)espace_libre->ptr - tas);
+    }
+
     for (i = 0; i < 8; i++)
     {
         for (j = 0; j < 16; j++)
@@ -95,4 +117,9 @@ void afficher_tas()
         }
         printf("\n");
     }
+}
+
+void clean()
+{
+    list_free(espace_libre);
 }

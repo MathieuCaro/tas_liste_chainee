@@ -29,10 +29,10 @@ void test_init(void)
     char *p3 = tas_malloc(5);
     CU_ASSERT(p3 == tas + 22);
     CU_ASSERT(*(p3 - 1) == 5);
-    char *p4 = tas_malloc(101);
+    char *p4 = tas_malloc(105);
     CU_ASSERT(p4 == NULL);
 
-    list_free();
+    clean();
 }
 
 void test_free(void)
@@ -57,7 +57,7 @@ void test_free(void)
     CU_ASSERT(*(p3) == FREE_BLOCK);
     // CU_ASSERT(*(p2-1) == 21);
 
-    list_free();
+    clean();
 }
 
 void test_full_example()
@@ -81,7 +81,7 @@ void test_full_example()
     // print_heap();
 
     CU_ASSERT(*(p1 - 1) == 10);
-    CU_ASSERT(*(p4 - 1) == 9);
+    CU_ASSERT_EQUAL(*(p4 - 1), 9);
     CU_ASSERT(*(p3 - 1) == 5);
     CU_ASSERT(tas[27] == 100);
     CU_ASSERT(tas[28] == -1);
@@ -90,7 +90,7 @@ void test_full_example()
     CU_ASSERT(strcmp(p3, "tp 3") == 0);
     CU_ASSERT(strcmp(p4, "systeme") == 0);
     afficher_tas();
-    list_free();
+    clean();
 }
 
 void test_empty_heap(void)
@@ -101,10 +101,10 @@ void test_empty_heap(void)
     init();
     p1 = (char *)tas_malloc(127);
     strcpy(p1, "ab");
-
+    afficher_tas();
     CU_ASSERT(tas[0] == 127 && tas[127] == 0);
     tas_free(p1);
-    list_free(p1);
+    clean();
 }
 
 void test_add_to_empty_heap(void)
@@ -119,7 +119,7 @@ void test_add_to_empty_heap(void)
     p2 = (char *)tas_malloc(3);
 
     CU_ASSERT(p2 == NULL);
-    list_free(p2);
+    clean();
 }
 
 int init_suite(void) { return 0; }
