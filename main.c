@@ -15,8 +15,8 @@ int main()
     strcpy(p1, "tp 1");
     strcpy(p2, "tp 2");
     strcpy(p3, "tp 3");
-    tas_free(p2);
-    char *p4 = tas_malloc(8);
+    // tas_free(p2);
+    /*char *p4 = tas_malloc(8);
     strcpy(p4, "systeme");
     char *p5 = tas_malloc(10);
     char *p6 = tas_malloc(9);
@@ -30,12 +30,13 @@ int main()
     strcpy(p8, "azertyyuopqdhkldlff");
     char *p9 = tas_malloc(6);
     strcpy(p9, "azert");
-    /*tas_free(p1);
+    tas_free(p1);
     tas_free(p4);
     tas_free(p5);
     tas_free(p7);
     tas_free(p8);
     tas_free(p9);*/
     afficher_tas();
+    clean();
     return 0;
 }

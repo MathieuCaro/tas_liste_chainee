@@ -8,7 +8,57 @@
 
 #include "../fonctions.h"
 
-void test_init(void)
+void test_initialisation(void)
+{
+    init();
+    CU_ASSERT(espace_libre->size == SIZE_TAB);
+    CU_ASSERT(espace_libre->next == NULL);
+    CU_ASSERT(espace_libre->previous == NULL);
+    clean();
+}
+
+void test_initialisation_2(void)
+{
+    init();
+    CU_ASSERT(espace_libre->size == SIZE_TAB);
+    char *p1 = tas_malloc(10);
+    strcpy(p1, "azerty");
+    linked_list *ptr_track = espace_libre;
+    CU_ASSERT(ptr_track->size == 10);
+    CU_ASSERT(ptr_track->next != NULL);
+    CU_ASSERT(ptr_track->filled == FILLED);
+    ptr_track = ptr_track->next;
+    CU_ASSERT(ptr_track->size == SIZE_TAB - 10);
+    CU_ASSERT(ptr_track->filled == FREE);
+    CU_ASSERT(ptr_track->next == NULL);
+    clean();
+}
+
+void test_malloc(void)
+{
+    init();
+    char *p1 = tas_malloc(10);
+    strcpy(p1, "azerty");
+    char *p2 = tas_malloc(12);
+    strcpy(p2, "azerty");
+
+    linked_list *ptr_track = espace_libre;
+    CU_ASSERT(ptr_track->size == 10);
+    CU_ASSERT(ptr_track->next != NULL);
+    CU_ASSERT(ptr_track->filled == FILLED);
+    ptr_track = ptr_track->next;
+    CU_ASSERT(ptr_track->size == 12);
+    CU_ASSERT(ptr_track->next != NULL);
+    CU_ASSERT(ptr_track->filled == FILLED);
+    ptr_track = ptr_track->next;
+    CU_ASSERT(ptr_track->size == SIZE_TAB - 10 - 12);
+    CU_ASSERT(ptr_track->next == NULL);
+    CU_ASSERT(ptr_track->filled == FREE);
+
+    clean();
+}
+
+/*void test_init(void)
 {
 
     init();
@@ -33,15 +83,16 @@ void test_init(void)
     CU_ASSERT(p4 == NULL);
 
     clean();
-}
+}*/
 
 void test_free(void)
 {
     init();
+    linked_list *ptr_track = espace_libre;
     char *p1 = tas_malloc(10);
-    char *p2 = tas_malloc(10);
-    char *p3 = tas_malloc(10);
-    char *p4 = tas_malloc(10);
+    char *p2 = tas_malloc(8);
+    char *p3 = tas_malloc(12);
+    char *p4 = tas_malloc(6);
 
     strcpy(p1, "tp1");
     strcpy(p2, "tp2");
@@ -49,18 +100,15 @@ void test_free(void)
     strcpy(p4, "tp4");
 
     tas_free(p2);
-    CU_ASSERT(*(p2 - 1) == 10);
-    CU_ASSERT(*(p2) == FREE_BLOCK);
-
+    ptr_track = ptr_track->next;
+    CU_ASSERT(ptr_track->size == 8);
     tas_free(p3); // testing merge left
-
-    CU_ASSERT(*(p3) == FREE_BLOCK);
-    // CU_ASSERT(*(p2-1) == 21);
-
+    CU_ASSERT(ptr_track->size == 12 + 8);
+    afficher_tas();
     clean();
 }
 
-void test_full_example()
+/*void test_full_example()
 {
     init();
 
@@ -102,6 +150,7 @@ void test_empty_heap(void)
     p1 = (char *)tas_malloc(127);
     strcpy(p1, "ab");
     afficher_tas();
+    // printf("size 0 %d %d", tas[0], tas[127]);
     CU_ASSERT(tas[0] == 127 && tas[127] == 0);
     tas_free(p1);
     clean();
@@ -120,7 +169,7 @@ void test_add_to_empty_heap(void)
 
     CU_ASSERT(p2 == NULL);
     clean();
-}
+}*/
 
 int init_suite(void) { return 0; }
 int clean_suite(void) { return 0; }
@@ -143,12 +192,16 @@ int main()
 
     /* add the tests to the suite */
     if (
-        NULL == CU_add_test(pSuite, "test initialisation", test_init) ||
-        NULL == CU_add_test(pSuite, "test free", test_free) ||
-        NULL == CU_add_test(pSuite, "test full example", test_full_example) ||
-        NULL == CU_add_test(pSuite, "test empty tas", test_empty_heap) ||
-        NULL == CU_add_test(pSuite, "test add to empty tas", test_add_to_empty_heap)
+        NULL == CU_add_test(pSuite, "test initialisation", test_initialisation) ||
+        NULL == CU_add_test(pSuite, "test initialisation 2", test_initialisation_2) ||
+        NULL == CU_add_test(pSuite, "test malloc", test_malloc) ||
+        NULL == CU_add_test(pSuite, "test malloc", test_free)
 
+        /* NULL == CU_add_test(pSuite, "test initialisation", test_init) ||
+         NULL == CU_add_test(pSuite, "test free", test_free) ||
+         NULL == CU_add_test(pSuite, "test full example", test_full_example) ||
+         NULL == CU_add_test(pSuite, "test empty tas", test_empty_heap) ||
+         NULL == CU_add_test(pSuite, "test add to empty tas", test_add_to_empty_heap)*/
     )
     {
         CU_cleanup_registry();

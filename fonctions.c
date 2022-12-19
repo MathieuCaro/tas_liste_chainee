@@ -7,76 +7,74 @@
 
 void init(void)
 {
-    espace_libre = new_element(SIZE_TAB - 1, tas);
-    tas[0] = SIZE_TAB - 1;
-    tas[1] = FREE_BLOCK;
-    for (int i = 2; i < 128; i++)
+    espace_libre = new_element(SIZE_TAB, tas, FREE);
+}
+
+linked_list *first_fit(linked_list *head, int size)
+{
+    linked_list *list_search = head;
+    while (list_search)
     {
-        tas[i] = 0;
+        if ((list_search->filled == FREE) && (list_search->size >= size))
+        {
+            return list_search;
+        }
+        list_search = list_search->next;
     }
+    return NULL;
 }
 
 char *tas_malloc(unsigned int taille)
 {
-    linked_list *index = list_search(espace_libre, taille);
-    if (index == NULL)
-    {
-        return NULL;
-    }
-    if (index->size == taille + 1)
-    {
-        taille++;
-    }
-
+    linked_list *index = first_fit(espace_libre, taille);
     char *temp = NULL;
+    int size_old_elmt;
+
     if (index->size == taille)
     {
-        *((char *)index->ptr + 1) = 0;
-        temp = (char *)index->ptr + 1;
-
-        espace_libre = list_remove(espace_libre, index);
+        temp = (char *)index->ptr;
+        index->filled = FILLED;
     }
-    else if (index->size > taille + 1)
+    else if (index->size > taille)
     {
-        temp = (char *)index->ptr + 1;
-        *((char *)index->ptr) = taille;
-        *((char *)index->ptr + 1) = INIT_VAL;
-        int size;
-        if (index->next)
-        {
-            size = index->size - taille - 2;
-        }
-        else
-        {
-            size = index->size - taille - 1;
-        }
-        *((char *)index->ptr + taille + 1) = size;
-        index->size = size;
-        *((char *)index->ptr + taille + 2) = -1;
-        index->ptr = (char *)index->ptr + taille + 1;
-    }
+        size_old_elmt = index->size;
+        index->size = taille;
+        index->filled = FILLED;
+        linked_list *nouvel_elmt = new_element(size_old_elmt - taille, (char *)index->ptr + taille, FREE);
+        add_after(index, nouvel_elmt);
 
+        temp = index->ptr;
+    }
     return temp;
 }
 
 int tas_free(char *ptr)
 {
+    linked_list *free_ptr = espace_libre;
+    while (free_ptr)
+    {
+        if (free_ptr->ptr == ptr)
+        {
+            free_ptr->filled = FREE;
+            break;
+        }
+        free_ptr = free_ptr->next;
+    }
+    if (free_ptr == NULL)
+    {
+        return 0;
+    }
+    if ((free_ptr->next) && (free_ptr->next->filled == FREE))
+    {
+        free_ptr->size += free_ptr->next->size;
+        list_remove(espace_libre, free_ptr->next);
+    }
+    if ((free_ptr->previous) && (free_ptr->previous->filled == FREE))
+    {
+        free_ptr->previous->size += free_ptr->size;
+        list_remove(espace_libre, free_ptr);
+    }
 
-    if (espace_libre == NULL || ptr - (char *)espace_libre->ptr <= 0)
-    {
-        espace_libre = add_index(espace_libre, *(ptr - 1), 0, ptr - 1);
-    }
-    else
-    {
-        add_before(espace_libre, ptr - 1, *(ptr - 1));
-    }
-    *(ptr) = -1;
-    ptr++;
-    while (*(ptr) != '\0')
-    {
-        *ptr = 0;
-        ptr++;
-    }
     return 0;
 }
 
