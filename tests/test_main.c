@@ -88,6 +88,8 @@ void test_malloc(void)
 void test_free(void)
 {
     init();
+    int tableau_taille[] = {10, 8, 12, 6, SIZE_TAB - 10 - 8 - 12 - 6};
+    int tableau_filled[] = {FILLED, FREE, FILLED, FILLED, FREE};
     linked_list *ptr_track = espace_libre;
     char *p1 = tas_malloc(10);
     char *p2 = tas_malloc(8);
@@ -100,13 +102,130 @@ void test_free(void)
     strcpy(p4, "tp4");
 
     tas_free(p2);
-    ptr_track = ptr_track->next;
-    CU_ASSERT(ptr_track->size == 8);
-    tas_free(p3); // testing merge left
-    CU_ASSERT(ptr_track->size == 12 + 8);
-    ptr_track = ptr_track->previous;
-    tas_free(p1); // testing merge right
-    CU_ASSERT(ptr_track->size == 12 + 8 + 10);
+    for (int i = 0; ptr_track; i++)
+    {
+        CU_ASSERT(ptr_track->size == tableau_taille[i]);
+        CU_ASSERT(ptr_track->filled == tableau_filled[i]);
+        ptr_track = ptr_track->next;
+    }
+    afficher_tas();
+    clean();
+}
+
+void test_merge_left(void)
+{
+    init();
+    int tableau_taille[] = {10, 8 + 12, 6, SIZE_TAB - 10 - 8 - 12 - 6};
+    int tableau_filled[] = {FILLED, FREE, FILLED, FREE};
+    linked_list *ptr_track = espace_libre;
+    char *p1 = tas_malloc(10);
+    char *p2 = tas_malloc(8);
+    char *p3 = tas_malloc(12);
+    char *p4 = tas_malloc(6);
+
+    strcpy(p1, "tp1");
+    strcpy(p2, "tp2");
+    strcpy(p3, "tp3");
+    strcpy(p4, "tp4");
+
+    tas_free(p2);
+    tas_free(p3);
+    for (int i = 0; ptr_track; i++)
+    {
+        CU_ASSERT(ptr_track->size == tableau_taille[i]);
+        CU_ASSERT(ptr_track->filled == tableau_filled[i]);
+        ptr_track = ptr_track->next;
+    }
+    afficher_tas();
+    clean();
+}
+
+void test_merge_right(void)
+{
+    init();
+    int tableau_taille[] = {10 + 8, 12, 6, SIZE_TAB - 10 - 8 - 12 - 6};
+    int tableau_filled[] = {FREE, FILLED, FILLED, FREE};
+    linked_list *ptr_track = espace_libre;
+    char *p1 = tas_malloc(10);
+    char *p2 = tas_malloc(8);
+    char *p3 = tas_malloc(12);
+    char *p4 = tas_malloc(6);
+
+    strcpy(p1, "tp1");
+    strcpy(p2, "tp2");
+    strcpy(p3, "tp3");
+    strcpy(p4, "tp4");
+
+    tas_free(p2);
+    tas_free(p1);
+    for (int i = 0; ptr_track; i++)
+    {
+        CU_ASSERT(ptr_track->size == tableau_taille[i]);
+        CU_ASSERT(ptr_track->filled == tableau_filled[i]);
+        ptr_track = ptr_track->next;
+    }
+
+    afficher_tas();
+    clean();
+}
+void test_merge_left_right(void)
+{
+    init();
+    int tableau_taille[] = {10 + 8 + 12, 6, SIZE_TAB - 10 - 8 - 12 - 6};
+    int tableau_filled[] = {FREE, FILLED, FREE};
+    linked_list *ptr_track = espace_libre;
+    char *p1 = tas_malloc(10);
+    char *p2 = tas_malloc(8);
+    char *p3 = tas_malloc(12);
+    char *p4 = tas_malloc(6);
+
+    strcpy(p1, "tp1");
+    strcpy(p2, "tp2");
+    strcpy(p3, "tp3");
+    strcpy(p4, "tp4");
+
+    tas_free(p1);
+    tas_free(p3);
+    tas_free(p2);
+    for (int i = 0; ptr_track; i++)
+    {
+        CU_ASSERT(ptr_track->size == tableau_taille[i]);
+        CU_ASSERT(ptr_track->filled == tableau_filled[i]);
+        ptr_track = ptr_track->next;
+    }
+
+    afficher_tas();
+    clean();
+}
+
+void test_merge_all(void)
+{
+    init();
+    int tableau_taille[] = {SIZE_TAB};
+    int tableau_filled[] = {FREE};
+    linked_list *ptr_track = espace_libre;
+    char *p1 = tas_malloc(10);
+    char *p2 = tas_malloc(8);
+    char *p3 = tas_malloc(12);
+    char *p4 = tas_malloc(6);
+
+    strcpy(p1, "tp1");
+    strcpy(p2, "tp2");
+    strcpy(p3, "tp3");
+    strcpy(p4, "tp4");
+
+    tas_free(p1);
+    tas_free(p2);
+    tas_free(p3);
+    tas_free(p4);
+
+    for (int i = 0; ptr_track; i++)
+    {
+        CU_ASSERT(ptr_track->size == tableau_taille[i]);
+        CU_ASSERT(ptr_track->filled == tableau_filled[i]);
+        ptr_track = ptr_track->next;
+    }
+
     afficher_tas();
     clean();
 }
@@ -203,10 +322,14 @@ int main()
         NULL == CU_add_test(pSuite, "test initialisation", test_initialisation) ||
         NULL == CU_add_test(pSuite, "test initialisation 2", test_initialisation_2) ||
         NULL == CU_add_test(pSuite, "test malloc", test_malloc) ||
-        NULL == CU_add_test(pSuite, "test malloc", test_free) ||
+        NULL == CU_add_test(pSuite, "test free", test_free) ||
         NULL == CU_add_test(pSuite, "test full example", test_full_example) ||
         NULL == CU_add_test(pSuite, "test empty tas", test_empty_heap) ||
-        NULL == CU_add_test(pSuite, "test add to empty tas", test_add_to_empty_heap))
+        NULL == CU_add_test(pSuite, "test add to empty tas", test_add_to_empty_heap) ||
+        NULL == CU_add_test(pSuite, "test merge left", test_merge_left) ||
+        NULL == CU_add_test(pSuite, "test merge right", test_merge_right) ||
+        NULL == CU_add_test(pSuite, "test merge left right", test_merge_left_right) ||
+        NULL == CU_add_test(pSuite, "test merge all", test_merge_all))
     {
         CU_cleanup_registry();
         return CU_get_error();
