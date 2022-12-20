@@ -1,6 +1,9 @@
 #ifndef ALLOC_H
 #define ALLOC_H
 
+#include <stdio.h>
+#include <time.h>
+
 #include "linked_list.h"
 
 linked_list *espace_libre;
@@ -18,5 +21,7 @@ char *tas_malloc(unsigned int taille);
 int tas_free(char *ptr);
 void afficher_tas();
 void clean();
+void write_log();
+void read_log();
 
 #endif

@@ -24,12 +24,41 @@ linked_list *first_fit(linked_list *head, int size)
     return NULL;
 }
 
+void write_log(char *action, int size, char *adresse)
+{
+    FILE *fichier;
+    fichier = fopen("fichier.txt", "a");
+
+    time_t timestamp = time(NULL);
+    struct tm *pTime = localtime(&timestamp);
+
+    char buffer[80];
+    strftime(buffer, 80, "[%B %d %Y][%R]", pTime);
+    fprintf(fichier, "%s %s %dbytes at adress %p\n", buffer, action, size, adresse);
+    fclose(fichier);
+}
+
+void read_log()
+{
+    FILE *fichier;
+    int taille;
+    char adress[20];
+    fichier = fopen("fichier.txt", "r");
+    while (fscanf(fichier, "%*s %*s %*s %*s %dbytes at adress %s\n",
+                  &taille, adress) == 2)
+        printf("%s %dbytes\n", adress, taille);
+    fclose(fichier);
+}
+
 char *tas_malloc(unsigned int taille)
 {
     linked_list *index = first_fit(espace_libre, taille);
     char *temp = NULL;
     int size_old_elmt;
-
+    if (index == NULL)
+    {
+        return NULL;
+    }
     if (index->size == taille)
     {
         temp = (char *)index->ptr;
@@ -45,6 +74,7 @@ char *tas_malloc(unsigned int taille)
 
         temp = index->ptr;
     }
+    write_log("malloced", index->size, temp);
     return temp;
 }
 
@@ -64,6 +94,7 @@ int tas_free(char *ptr)
     {
         return 0;
     }
+    write_log("freed", free_ptr->size, ptr);
     if ((free_ptr->next) && (free_ptr->next->filled == FREE))
     {
         free_ptr->size += free_ptr->next->size;

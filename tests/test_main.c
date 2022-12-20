@@ -104,14 +104,17 @@ void test_free(void)
     CU_ASSERT(ptr_track->size == 8);
     tas_free(p3); // testing merge left
     CU_ASSERT(ptr_track->size == 12 + 8);
+    ptr_track = ptr_track->previous;
+    tas_free(p1); // testing merge right
+    CU_ASSERT(ptr_track->size == 12 + 8 + 10);
     afficher_tas();
     clean();
 }
 
-/*void test_full_example()
+void test_full_example()
 {
     init();
-
+    linked_list *ptr_track = espace_libre;
     char *p1 = tas_malloc(10);
     char *p2 = tas_malloc(9);
     char *p3 = tas_malloc(5);
@@ -126,14 +129,15 @@ void test_free(void)
     char *p4 = tas_malloc(8);
     strcpy(p4, "systeme");
 
-    // print_heap();
-
-    CU_ASSERT(*(p1 - 1) == 10);
-    CU_ASSERT_EQUAL(*(p4 - 1), 9);
-    CU_ASSERT(*(p3 - 1) == 5);
-    CU_ASSERT(tas[27] == 100);
-    CU_ASSERT(tas[28] == -1);
-
+    CU_ASSERT(ptr_track->size == 10);
+    ptr_track = ptr_track->next;
+    CU_ASSERT(ptr_track->size == 8);
+    ptr_track = ptr_track->next;
+    CU_ASSERT(ptr_track->size == 1);
+    ptr_track = ptr_track->next;
+    CU_ASSERT(ptr_track->size == 5);
+    ptr_track = ptr_track->next;
+    CU_ASSERT(ptr_track->size == SIZE_TAB - 10 - 8 - 1 - 5);
     CU_ASSERT(strcmp(p1, "tp 1") == 0);
     CU_ASSERT(strcmp(p3, "tp 3") == 0);
     CU_ASSERT(strcmp(p4, "systeme") == 0);
@@ -147,11 +151,12 @@ void test_empty_heap(void)
     char *p1;
 
     init();
-    p1 = (char *)tas_malloc(127);
+    p1 = (char *)tas_malloc(SIZE_TAB);
     strcpy(p1, "ab");
     afficher_tas();
-    // printf("size 0 %d %d", tas[0], tas[127]);
-    CU_ASSERT(tas[0] == 127 && tas[127] == 0);
+    CU_ASSERT(espace_libre->size == SIZE_TAB);
+    CU_ASSERT(espace_libre->next == NULL);
+    CU_ASSERT(espace_libre->filled == FILLED);
     tas_free(p1);
     clean();
 }
@@ -162,16 +167,19 @@ void test_add_to_empty_heap(void)
     char *p1, *p2;
 
     init();
-    p1 = (char *)tas_malloc(125);
+    p1 = (char *)tas_malloc(SIZE_TAB - 2);
     strcpy(p1, "ab");
 
     p2 = (char *)tas_malloc(3);
 
     CU_ASSERT(p2 == NULL);
     clean();
-}*/
+}
 
-int init_suite(void) { return 0; }
+int init_suite(void)
+{
+    return 0;
+}
 int clean_suite(void) { return 0; }
 
 int main()
@@ -195,14 +203,10 @@ int main()
         NULL == CU_add_test(pSuite, "test initialisation", test_initialisation) ||
         NULL == CU_add_test(pSuite, "test initialisation 2", test_initialisation_2) ||
         NULL == CU_add_test(pSuite, "test malloc", test_malloc) ||
-        NULL == CU_add_test(pSuite, "test malloc", test_free)
-
-        /* NULL == CU_add_test(pSuite, "test initialisation", test_init) ||
-         NULL == CU_add_test(pSuite, "test free", test_free) ||
-         NULL == CU_add_test(pSuite, "test full example", test_full_example) ||
-         NULL == CU_add_test(pSuite, "test empty tas", test_empty_heap) ||
-         NULL == CU_add_test(pSuite, "test add to empty tas", test_add_to_empty_heap)*/
-    )
+        NULL == CU_add_test(pSuite, "test malloc", test_free) ||
+        NULL == CU_add_test(pSuite, "test full example", test_full_example) ||
+        NULL == CU_add_test(pSuite, "test empty tas", test_empty_heap) ||
+        NULL == CU_add_test(pSuite, "test add to empty tas", test_add_to_empty_heap))
     {
         CU_cleanup_registry();
         return CU_get_error();
