@@ -58,33 +58,6 @@ void test_malloc(void)
     clean();
 }
 
-/*void test_init(void)
-{
-
-    init();
-    CU_ASSERT(tas[0] == 127);
-    CU_ASSERT(tas[1] == -1);
-    for (int i = 2; i < SIZE_TAB; i++)
-    {
-        CU_ASSERT(tas[i] == 0);
-    }
-    char *p1 = tas_malloc(10);
-    CU_ASSERT(p1 - 1 == tas);
-    CU_ASSERT(*(p1 + 1) != FREE_BLOCK);
-
-    afficher_tas();
-    char *p2 = tas_malloc(9);
-    CU_ASSERT(p2 == tas + 12);
-    CU_ASSERT(*(p2 - 1) == 9);
-    char *p3 = tas_malloc(5);
-    CU_ASSERT(p3 == tas + 22);
-    CU_ASSERT(*(p3 - 1) == 5);
-    char *p4 = tas_malloc(105);
-    CU_ASSERT(p4 == NULL);
-
-    clean();
-}*/
-
 void test_free(void)
 {
     init();
